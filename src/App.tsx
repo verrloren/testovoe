@@ -1,35 +1,31 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { HomePage } from "@/pages/home";
+import { LoginPage } from "@/pages/login";
+import { RegisterPage } from "@/pages/register";
+import { Navigate, Route, Routes } from "react-router-dom";
+import { Header } from "@/widgets/header";
+import { useAuth } from "@/features/auth/hooks/use-auth";
+import { Loader } from "@/shared/ui/loader";
+import { useUserStore } from "@/entities/user/store/use-user-store";
+import { PublicRoute } from "./pages/routes/public-route";
+import { ProtectedRoute } from "./pages/routes/protected-route";
 
-function App() {
-  const [count, setCount] = useState(0)
+export function App() {
+  const { isLoading } = useAuth();
+	const isAuth = useUserStore(state => state.user);
+
+  if (isLoading) {
+    return <Loader />
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+		<>
+		{isAuth && <Header />}
+		<Routes>
+        <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
+        <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
+        <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+		</>
+  );
 }
-
-export default App
